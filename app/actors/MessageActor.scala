@@ -1,6 +1,5 @@
 package actors
 
-
 import actors.ApiActor.ApiEvent
 import actors.BotActor.BotMessageEvent
 import actors.MessageActor.MessageEvent
@@ -14,7 +13,7 @@ import services.{ApiService, BotService}
 /**
   * Created by Sandeep.K on 18-08-2017.
   */
-class MessageActor(out: ActorRef) extends Actor with ActorLogging {
+class MessageActor(messageActor: ActorRef) extends Actor with ActorLogging {
 
   private val botRouterAddresses: Array[Address] = Array(new Address("akka.tcp", "localhost", "127.0.0.1", 9001), AddressFromURIString.parse("akka.tcp://localhost@127.0.0.1:9001"))
   private val botRouter: ActorRef = context.actorOf(new RemoteRouterConfig(new RoundRobinPool(5), botRouterAddresses).props(Props.create(classOf[BotActor])))
@@ -24,9 +23,9 @@ class MessageActor(out: ActorRef) extends Actor with ActorLogging {
   def receive = {
     case MessageEvent(message, botService, apiService) =>
       botRouter ! BotMessageEvent(message, botService, self)
-      out ! Json.toJson(message).toString()
+      messageActor ! Json.toJson(message).toString()
       apiRouter ! ApiEvent(message, apiService)
-    case BotMessageEvent(message, botService, self) => out ! Json.toJson(message).toString()
+    case BotMessageEvent(message, botService, self) => messageActor ! Json.toJson(message).toString()
   }
 
 }

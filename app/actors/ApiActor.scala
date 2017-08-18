@@ -1,17 +1,13 @@
 package actors
 
 import actors.ApiActor.ApiEvent
-import actors.BotActor.BotMessageEvent
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.actor.{Actor, ActorLogging, Props}
 import data.MessageObjects.Message
-import play.Logger
-import services.{ApiService, BotService}
+import services.ApiService
 
 /**
   * Created by Sandeep.K on 18-08-2017.
   */
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class ApiActor extends Actor with ActorLogging {
   def receive = {
