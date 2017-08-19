@@ -29,7 +29,7 @@ class BotService @Inject() (wsClient: WSClient){
       .map {
         response => {
           val botMessage = response.json.as[JsValue] \ "result" \ "fulfillment" \ "speech"
-          new Message(1, botMessage.get.as[String], message.userId, message.channelId)
+          new Message(1, botMessage.get.as[String], 0, "looper-bot", message.channelId)
         }
       }
     futureResult

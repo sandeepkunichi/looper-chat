@@ -1,16 +1,9 @@
 import javax.inject._
 
-import play.api._
-import play.api.http.HttpFilters
+import play.api.http.DefaultHttpFilters
+import play.filters.cors.CORSFilter
 
 /**
   * Created by Sandeep.K on 19-08-2017.
   */
-@Singleton
-class Filters @Inject() (env: Environment) extends HttpFilters {
-
-  override val filters = {
-    Seq.empty
-  }
-
-}
+class Filters @Inject() (corsFilter: CORSFilter) extends DefaultHttpFilters(corsFilter)

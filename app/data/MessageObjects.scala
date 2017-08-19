@@ -7,7 +7,7 @@ import play.api.libs.json._
   */
 object MessageObjects {
 
-  case class Message (id: Long, text: String, userId: Long, channelId: Long)
+  case class Message (id: Long, text: String, userId: Long, username: String, channelId: Long)
   case class BotMessage (text: String, userId: Long, channelId: Long)
   case class User (id: Long, username: String)
   case class Channel (id: Long, name: String)
@@ -18,6 +18,7 @@ object MessageObjects {
         (json \ "id").as[Long],
         (json \ "text").as[String],
         (json \ "userId").as[Long],
+        (json \ "username").as[String],
         (json \ "channelId").as[Long]
       ))
     }
@@ -27,6 +28,7 @@ object MessageObjects {
         "id" -> message.id,
         "text" ->  message.text,
         "userId" -> message.userId,
+        "username" -> message.username,
         "channelId" -> message.channelId
       )
     }

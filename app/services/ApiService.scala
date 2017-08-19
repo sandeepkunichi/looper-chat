@@ -17,8 +17,8 @@ class ApiService @Inject() (wsClient: WSClient) {
   def postMessage(message: Message): Unit = {
     val data = MessageObjects.messageFormat.writes(message)
     wsClient
-      .url("http://192.168.20.154:9001/message")
+      .url("http://192.168.10.152:9001/message")
       .post(data)
-      .map { response => Logger.info("response: " + response.body) }.onComplete(x => x.get)
+      .map { response => Logger.info("response: " + response.body) }.onComplete(x => Logger.info("Success"))
   }
 }
