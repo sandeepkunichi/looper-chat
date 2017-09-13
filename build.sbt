@@ -12,5 +12,6 @@ libraryDependencies ++= Seq(
   javaWs,
   filters,
   "com.typesafe.akka" %% "akka-remote" % "2.4.12",
-  "com.typesafe.akka" %% "akka-cluster" % "2.4.12"
+  "com.typesafe.akka" %% "akka-cluster" % "2.4.12",
+  "com.hazelcast" % "hazelcast-client" % "3.8.4"
 )

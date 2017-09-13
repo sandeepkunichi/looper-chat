@@ -14,7 +14,7 @@ app.controller('chatController', function ($scope, $sce) {
         "content-type": "application/json"
       },
       "processData": false,
-      "data": "{\"id\": 1,\"text\": \"" + $scope.userMessage + "\",\"userId\": 1,\"channelId\": 1}"
+      "data": "{\"id\": 1,\"text\": \"" + $scope.userMessage + "\",\"userId\": 1,\"channelId\": 1, \"username\": \"sandeep\"}"
     };
     $.ajax(settings).done(function (response) {
       console.log(response);
@@ -23,7 +23,7 @@ app.controller('chatController', function ($scope, $sce) {
     $scope.userMessage = "";
   };
 
-  var  chatSocket = new WebSocket("ws://192.168.10.89:9000/chatSocket");
+  var  chatSocket = new WebSocket("ws://192.168.10.94:9000/chatSocket/random/sandeepkunichi");
   chatSocket.onmessage = function(event) {
     var jsonData = JSON.parse(event.data);
     jsonData.time = new Date().toLocaleTimeString();

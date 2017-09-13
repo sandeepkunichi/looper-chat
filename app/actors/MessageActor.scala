@@ -1,36 +1,41 @@
 package actors
 
-import actors.ApiActor.ApiEvent
-import actors.BotActor.BotMessageEvent
-import actors.MessageActor.MessageEvent
-import akka.actor.{Actor, ActorLogging, ActorRef, Address, AddressFromURIString, Props}
-import akka.remote.routing.RemoteRouterConfig
-import akka.routing.RoundRobinPool
-import data.MessageObjects.Message
-import play.api.libs.json.Json
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import com.hazelcast.core.IMap
+import data.MessageObjects.{ChannelConnection, Message}
 import services.{ApiService, BotService}
 
 /**
   * Created by Sandeep.K on 18-08-2017.
   */
-class MessageActor(messageActor: ActorRef) extends Actor with ActorLogging {
+class MessageActor(messageActor: ActorRef,
+                   name: String,
+                   registry: IMap[String, Set[String]],
+                   channelConnection: ChannelConnection)
+  extends Actor with ActorLogging {
 
-  private val botRouterAddresses: Array[Address] = Array(new Address("akka.tcp", "localhost", "127.0.0.1", 9001), AddressFromURIString.parse("akka.tcp://localhost@127.0.0.1:9001"))
-  private val botRouter: ActorRef = context.actorOf(new RemoteRouterConfig(new RoundRobinPool(5), botRouterAddresses).props(Props.create(classOf[BotActor])))
-  private val apiRouterAddresses: Array[Address] = Array(new Address("akka.tcp", "localhost", "127.0.0.1", 9002), AddressFromURIString.parse("akka.tcp://localhost@127.0.0.1:9002"))
-  private val apiRouter: ActorRef = context.actorOf(new RemoteRouterConfig(new RoundRobinPool(5), apiRouterAddresses).props(Props.create(classOf[ApiActor])))
+  val child = context.actorOf(Props(new ChatActor(self)), name)
 
   def receive = {
-    case MessageEvent(message, botService, apiService) =>
-      botRouter ! BotMessageEvent(message, botService, self)
-      messageActor ! Json.toJson(message).toString()
-      apiRouter ! ApiEvent(message, apiService)
-    case BotMessageEvent(message, botService, self) => messageActor ! Json.toJson(message).toString()
+    case message: String => messageActor ! message
+  }
+
+  override def preStart = {
+    if(registry.get(channelConnection.channel) == null)
+      registry.set(channelConnection.channel, Set.empty)
+    if(!registry.get(channelConnection.channel).contains(channelConnection.user)){
+      registry.set(channelConnection.channel, registry.get(channelConnection.channel) + channelConnection.user)
+    }
+  }
+
+  override def postStop = {
+    registry.set(channelConnection.channel, registry.get(channelConnection.channel) - channelConnection.user)
   }
 
 }
 
 object MessageActor {
-  def props(out: ActorRef) = Props(new MessageActor(out))
+  def props(out: ActorRef, name: String, registry: IMap[String, Set[String]], channelConnection: ChannelConnection) =
+    Props(new MessageActor(out, name, registry, channelConnection))
   case class MessageEvent(message: Message, botService: BotService, apiService: ApiService)
 }

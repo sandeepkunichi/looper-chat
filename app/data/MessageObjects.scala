@@ -11,6 +11,8 @@ object MessageObjects {
   case class BotMessage (text: String, userId: Long, channelId: Long)
   case class User (id: Long, username: String)
   case class Channel (id: Long, name: String)
+  case class Connections (channel: String, users: Set[String])
+  case class ChannelConnection (channel: String, user: String)
 
   implicit val messageFormat = new Format[Message] {
     override def reads(json: JsValue): JsResult[Message] = {
@@ -80,6 +82,22 @@ object MessageObjects {
         "text" ->  message.text,
         "userId" -> message.userId,
         "channelId" -> message.channelId
+      )
+    }
+  }
+
+  implicit val connectionFormat = new Format[Connections] {
+    override def reads(json: JsValue): JsResult[Connections] = {
+      JsSuccess(new Connections(
+        (json \ "channel").as[String],
+        (json \ "users").as[Set[String]]
+      ))
+    }
+
+    override def writes(connections: Connections): JsValue = {
+      Json.obj(
+        "channel" -> connections.channel,
+        "users" ->  connections.users
       )
     }
   }
