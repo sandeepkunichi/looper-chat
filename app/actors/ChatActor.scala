@@ -21,7 +21,7 @@ class ChatActor(messageActor: ActorRef) extends Actor with ActorLogging {
   //private val apiRouter: ActorRef = context.actorOf(new RemoteRouterConfig(new RoundRobinPool(5), apiRouterAddresses).props(Props.create(classOf[ApiActor])))
 
   def receive = {
-    case MessageEvent(message, botService, apiService) =>
+    case MessageEvent(message) =>
       //botRouter ! BotMessageEvent(message, botService, self)
       messageActor ! Json.toJson(message).toString()
       //apiRouter ! ApiEvent(message, apiService)
@@ -32,5 +32,5 @@ class ChatActor(messageActor: ActorRef) extends Actor with ActorLogging {
 
 object ChatActor {
   def props(parent: ActorRef) = Props(new ChatActor(parent))
-  case class MessageEvent(message: Message, botService: BotService, apiService: ApiService)
+  case class MessageEvent(message: Message)
 }

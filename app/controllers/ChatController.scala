@@ -14,7 +14,6 @@ import play.api.libs.json.Json
 import play.api.libs.streams.ActorFlow
 import play.api.mvc._
 import services.{ApiService, BotService}
-
 /**
   * Created by Sandeep.K on 18-08-2017.
   */
@@ -27,7 +26,7 @@ class ChatController @Inject() (implicit system: ActorSystem,
 
   val clientConfig = new ClientConfig()
   clientConfig.getNetworkConfig.addAddress("192.168.10.94:5701")
-  val hazelcastClient = HazelcastClient.newHazelcastClient(new ClientConfig())
+  val hazelcastClient = HazelcastClient.newHazelcastClient(clientConfig)
   val actorRegistry = hazelcastClient.getMap[String, Set[String]]("looper-actors")
 
   def index = Action { request =>
@@ -36,12 +35,12 @@ class ChatController @Inject() (implicit system: ActorSystem,
 
   def sendMessage = Action { request =>
     actorRegistry.get("random").foreach(p => {
-      system.actorSelection("akka://looper-actor-system-1/user/*/flowActor/" + p) !
-        MessageEvent(Json.parse(request.body.asJson.get.toString()).as[Message], botService, apiService)
-      system.actorSelection("akka://looper-actor-system-2/user/*/flowActor/" + p) !
-        MessageEvent(Json.parse(request.body.asJson.get.toString()).as[Message], botService, apiService)
-      system.actorSelection("akka://looper-actor-system-3/user/*/flowActor/" + p) !
-        MessageEvent(Json.parse(request.body.asJson.get.toString()).as[Message], botService, apiService)
+      system.actorSelection("akka.tcp://looper-actor-system-1@192.168.10.94:2553/user/*/flowActor/" + p) !
+        MessageEvent(Json.parse(request.body.asJson.get.toString()).as[Message])
+      system.actorSelection("akka.tcp://looper-actor-system-2@192.168.10.132:2553/user/*/flowActor/" + p) !
+        MessageEvent(Json.parse(request.body.asJson.get.toString()).as[Message])
+      system.actorSelection("akka.tcp://looper-actor-system-3@192.168.10.164:2553/user/*/flowActor/" + p) !
+        MessageEvent(Json.parse(request.body.asJson.get.toString()).as[Message])
     })
     Ok("")
   }

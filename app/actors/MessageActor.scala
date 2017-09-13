@@ -37,5 +37,5 @@ class MessageActor(messageActor: ActorRef,
 object MessageActor {
   def props(out: ActorRef, name: String, registry: IMap[String, Set[String]], channelConnection: ChannelConnection) =
     Props(new MessageActor(out, name, registry, channelConnection))
-  case class MessageEvent(message: Message, botService: BotService, apiService: ApiService)
+  case class MessageEvent(message: Message)
 }
